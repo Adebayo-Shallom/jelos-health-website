@@ -2,7 +2,10 @@
   "use strict";
 
   var COMPANY_EMAIL = "theguardianhealth@gmail.com";
-  var FORM_ENDPOINT = "https://formsubmit.co/ajax/" + COMPANY_EMAIL;
+  // Web3Forms access key (free, from https://web3forms.com, sent to the company inbox).
+  // It is safe to publish. While it is empty, the form falls back to FormSubmit.
+  var WEB3FORMS_KEY = "ce635926-37c9-45bd-8e24-11487c0c4358";
+  var SEND_TIMEOUT_MS = 15000;
 
   // Footer year
   var year = document.getElementById("year");
@@ -142,10 +145,25 @@
     button.textContent = "Sending…";
     setStatus("", "");
 
-    fetch(FORM_ENDPOINT, {
+    var endpoint = "https://formsubmit.co/ajax/" + COMPANY_EMAIL;
+    if (WEB3FORMS_KEY) {
+      endpoint = "https://api.web3forms.com/submit";
+      data.access_key = WEB3FORMS_KEY;
+      data.subject = data._subject;
+      data.from_name = "JELOS HEALTH LTD website";
+      data.replyto = data.email;
+      delete data._subject; delete data._template;
+    }
+
+    // Never leave the visitor waiting on "Sending…" if the service does not answer.
+    var controller = "AbortController" in window ? new AbortController() : null;
+    var timer = setTimeout(function () { if (controller) controller.abort(); }, SEND_TIMEOUT_MS);
+
+    fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Accept": "application/json" },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
+      signal: controller ? controller.signal : undefined
     })
       .then(function (res) { return res.json().catch(function () { return {}; }); })
       .then(function (json) {
@@ -157,9 +175,10 @@
         }
       })
       .catch(function () {
-        setStatus("error", fallbackMessage("Sorry, we could not reach the server."));
+        setStatus("error", fallbackMessage("Sorry, our message service did not respond."));
       })
       .then(function () {
+        clearTimeout(timer);
         button.disabled = false;
         button.textContent = "Send Request";
       });

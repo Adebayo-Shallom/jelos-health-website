@@ -43,17 +43,14 @@ per upload, so upload it on its own if the drag-and-drop of the whole folder fai
 
 To use your own domain later (for example `thehealthguardian.ng`), add it in Vercel under **Project > Settings > Domains**.
 
-## The contact form (IMPORTANT: one-time activation)
+## The contact form
 
-The form sends messages to **theguardianhealth@gmail.com** using FormSubmit (https://formsubmit.co), a free service that needs no account or server.
+The form sends messages to **theguardianhealth@gmail.com** using Web3Forms (https://web3forms.com), a free service (250 messages a month) that needs no server.
 
-1. After the site is live, open it and send yourself a test message through the form.
-2. FormSubmit will email **theguardianhealth@gmail.com** asking you to **activate** the form. Click the activation link in that email (check Spam/Promotions too).
-3. Send another test message. From now on every request arrives in the Gmail inbox, and you can reply to the sender directly.
-
-Until the form is activated, visitors who use it are shown a link to email you directly instead, so no message is lost.
-
-Optional: after activation, FormSubmit gives you a random alias (like `https://formsubmit.co/el/abc123`). You can replace the email address in `main.js` (`FORM_ENDPOINT`) and `index.html` (form `action`) with that alias so the address is not visible in the page source to spam bots.
+- The access key is set in `main.js` (`WEB3FORMS_KEY`). It is meant to be public, so it is safe in the page source.
+- The key belongs to the address it was created with, so every message goes to that inbox. To change the receiving address, create a new key at web3forms.com and replace it in `main.js`.
+- If Web3Forms does not respond within 15 seconds, the visitor is shown a link to email you directly, so no request is lost.
+- Each message includes the visitor's email address, so you can reply to them directly from Gmail.
 
 ## Editing content
 
